@@ -6,7 +6,6 @@ public class CommunicationsMonitor {
 	
 	private HashMap<Integer, List<ComputerNode>> map = new HashMap<Integer, List<ComputerNode>>();
 	
-
 	public CommunicationsMonitor(){
 		
 	}
