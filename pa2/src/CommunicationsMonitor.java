@@ -83,6 +83,29 @@ public class CommunicationsMonitor {
 		activeGraph = true;
 	}
 	
+	public HashMap<Integer, List<ComputerNode>> getComputerMapping(){
+		if(activeGraph){
+			return map;
+		}
+		else{
+			System.out.println("No active graph");
+			return new HashMapM<Integer, List<ComputerNode>>();
+		}
+	}
+	
+	public List<ComputerNode> getComputerMapping(int c){
+		if(activeGraph){
+			if(map.get(c) != null){
+				return map.get(c);
+			}
+			return new ArrayList<ComputerNode>();
+		}
+		else{
+			System.out.println("No active graph");
+			return new ArrayList<ComputerNode>();
+		}
+	}
+	
 	public List<ComputerNode> queryInfection(int c1, int c2, int x, int y){
 		List<ComputerNode> cnlist = new ArrayList<ComputerNode>();
 		return cnlist;
