@@ -7,6 +7,7 @@ public class CommunicationsMonitor {
 	private HashMap<Integer, List<ComputerNode>> map;
 	private List<List<Integer>> triples;
 	private boolean activeGraph;
+	private boolean activeList;
 	
 	public CommunicationsMonitor(){
 		map = new HashMap<Integer, List<ComputerNode>>();
@@ -107,16 +108,68 @@ public class CommunicationsMonitor {
 	}
 	
 	public List<ComputerNode> queryInfection(int c1, int c2, int x, int y){
-		List<ComputerNode> cnlist = new ArrayList<ComputerNode>();
-		return cnlist;
+		ComputerNode endOfList = null;
+		if(activeGraph){
+			ArrayList<ComputerNode> list = new ArrayList<ComputerNode>();
+			for(ComputerNode cn : mapping.get(c1)){
+				if(cn.getTimestamp() >= x && !activeList){
+					DFS(n, c2, y, list, endOfList);
+					break;
+				}
+			}
+			if(!list.isEmpty()){
+				endOfList = list.get(0);
+				while(endOfList.getPred() != null){
+					endOfList = endOfList.getPred();
+					list.add(endOfList);
+				}
+			}
+			Collections.reverse(list);
+			return list;
+		}
+		else{
+			System.out.println("No active graph");
+			return new ArrayList<ComputerNode>();
+		}
 	}
 	
-	public HashMap<Integer, List<ComputerNode>> getComputerMapping(){
-		return this.map;
+	
+	public void DFS(ComputerNode n, int c2, int time, ArrayList<ComputerNode> list, ComputerNode endOfList){
+		for(ComputerNode neighbor : n.getOutNeightbors()){
+			neighbor.setColor(0);
+			neighbor.setPred(null);
+		}
+		DFSVisit(n, c2, time, list, endOfList);
 	}
 	
-	public List<ComputerNode> getComputerMapping(int c){
-		return this.map.get(c);
+	public void DFSVisit(ComputerNode n, int c2, int time, ArrayList<ComputerNode> list, ComputerNode endOfList){
+		n.setColor(1);
+		for(ComputerNode neighbor : n.getOutNeighbors()){
+			if(neighbor.getID() == c2 && neighbor.getTimestamp() <= time && !listMade){
+				neighbor.setPred(n);
+				list.add(neighbor);
+				activeList = true;
+				return;
+			}
+			else if(neighbor.getColor() == 0){
+				neighbor.setPred(n);
+				DFSVisit(neighbor, c2, time, list, endOfList);
+			}
+		}
+		n.setColor(2);
+	}
+	private List<List<Integer>> MergeSort(List<List<Integer>> list){
+		int n = list.size();
+		if(n == 1)
+			return list;
+		List<List<Integer>> first = list.subList(0, n/2);
+		List<List<Integer>> second = lest.subList(n/2, n);
+		return Merge(MergeSort(first), MergeSort(second));
+	}
+	
+	private List<List<Integer>> Merge(List<List<Integer>> A, List<List<Integer>> B){
+		List<List<Integer>> placeholder = new ArrayList<List<Integer>>();
+		return placeholder;
 	}
 	
 	
