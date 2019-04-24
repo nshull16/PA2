@@ -1,4 +1,5 @@
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * 
@@ -23,7 +24,7 @@ public class ComputerNode {
 		return this.id;
 	}
 	
-	public int getTimeStamp(){
+	public int getTimestamp(){
 		return this.timestamp;
 	}
 	public List<ComputerNode> getOutNeighbors(){

@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
+import java.util.Collections;
 
 /**
  * 
@@ -12,7 +13,6 @@ public class CommunicationsMonitor {
 	private HashMap<Integer, List<ComputerNode>> map;
 	private List<List<Integer>> triples;
 	private boolean activeGraph;
-	private boolean activeList;
 	
 	public CommunicationsMonitor(){
 		map = new HashMap<Integer, List<ComputerNode>>();
@@ -28,9 +28,6 @@ public class CommunicationsMonitor {
 			tripleAddition.add(c2);
 			tripleAddition.add(timestamp);
 			triples.add(tripleAddition);
-		}
-		else{
-			System.out.println("There's already a graph made.");
 		}
 	}
 	
@@ -85,33 +82,29 @@ public class CommunicationsMonitor {
 			return map;
 		}
 		else{
-			System.out.println("No active graph");
-			return new HashMapM<Integer, List<ComputerNode>>();
+			return null;
 		}
 	}
 	
 	public List<ComputerNode> getComputerMapping(int c){
 		if(activeGraph){
-			if(map.get(c) != null){
-				return map.get(c);
-			}
-			return new ArrayList<ComputerNode>();
+			return map.get(c);
 		}
 		else{
-			System.out.println("No active graph");
-			return new ArrayList<ComputerNode>();
+			return null;
 		}
 	}
 	
 	public List<ComputerNode> queryInfection(int c1, int c2, int x, int y){
-		ComputerNode endOfList = null;
 		if(activeGraph){
 			ArrayList<ComputerNode> list = new ArrayList<ComputerNode>();
 			ComputerNode lastNode = null;
-			for(ComputerNode cn : map.get(c1)){
-				if(cn.getTimestamp() >= x && !activeList){
-					lastNode = DFS(n, c2, y, list, endOfList);
-					break;
+			if(map.get(c1) != null){
+				for(ComputerNode cn : map.get(c1)){
+					if(cn.getTimestamp() >= x){
+						lastNode = DFS(cn, c2, y);
+						break;
+					}
 				}
 			}
 			if(lastNode != null){
@@ -121,12 +114,14 @@ public class CommunicationsMonitor {
 					list.add(lastNode);
 				}
 				Collections.reverse(list);
+				return list;
 			}
-			return list;
+			else{
+				return null;
+			}
 		}
 		else{
-			System.out.println("No active graph");
-			return new ArrayList<ComputerNode>();
+			return null;
 		}
 	}
 	
@@ -135,6 +130,9 @@ public class CommunicationsMonitor {
 		n.setColor(0);
 		n.setPred(null);
 		initDFS(n);
+		if(n.getID() == c2 && n.getTimestamp() <= time){
+			return n;
+		}
 		return DFSVisit(n, c2, time);
 	}
 	
@@ -143,7 +141,7 @@ public class CommunicationsMonitor {
 		for(ComputerNode neighbor : n.getOutNeighbors()){
 			if(neighbor.getID() == c2 && neighbor.getTimestamp() <= time){
 				neighbor.setPred(n);
-				return;
+				return neighbor;
 			}
 			else if(neighbor.getColor() == 0){
 				neighbor.setPred(n);
