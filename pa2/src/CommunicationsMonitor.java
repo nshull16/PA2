@@ -2,6 +2,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 
+/**
+ * 
+ * @author Nathan Shull, Tyler Krueger
+ *
+ */
 public class CommunicationsMonitor {
 	
 	private HashMap<Integer, List<ComputerNode>> map;
@@ -29,59 +34,50 @@ public class CommunicationsMonitor {
 		}
 	}
 	
-	public void createGraph(){
-		if(triples.size() > 0){
-			triples = MergeSort(triples);
-			for(List<Integer> triple : triples){
-				List<ComputerNode> c1List, c2List;
-				ComputerNode c2Node = new ComputerNode(triple.get(1), triple.get(2));
-				ComputerNode c1Node = new ComputerNode(triple.get(0), triple.get(2));
-				boolean newC1Node = true, newC2Node = true;
-				if(map.get(triple.get()) == null){
-					c1List = new ArrayList<ComputerNode>();
-				}
-				else{
-					c1List = map.get(triple.get(0));
-					if(c1List.get(c1List.size() - 1).getTimeStamp() == triple.get(2)){
-						c1Node = c1List.get(c1List.size() - 1);
-						newC1Node = false;
-					}
-					else{
-						c1List.get(c1List.size() - 1).addOutNeighbor(c1Node);
-					}
-				}
-				if(map.get(triple.get(1)) == null){
-					c2List = new ArrayList<ComputerNode>();
-				}
-				else{
-					c1List.get(c1List.size() - 1).addOutNeighbor(c1Node);
-				}
-			}
-			if(map.get(triple.get(1)) == null){
-				c2List = new ArrayList<ComputerNode>();
-			}
-			else{
-				c2List = map.get(triple.get(1));
-				if(c2List.get(c2List.size() - 1).getTimeStamp() == triple.get(2)){
-					c2Node = c2List.get(c2List.size() - 1);
-					newC2Node = false;
-				}
-				else{
-					c2List.get(c2List.size() - 1).addOutNeighbor(c2Node);
-				}
-			}
-			c1Node.addOutNeighbor(c2Node);
-			c2Node.addOutNeighbor(c1Node);
-			if(newC1Node){
-				c1List.add(c1Node);
-			}
-			if(newC2Node){
-				c2List.add(c2Node);
-			}
-			map.put(triple.get(0), c1List);
-			map.put(triple.get(1), c2List);
-		}
-		activeGraph = true;
+	public void createGraph() {
+        if (triples.size() > 0) {
+            triples = MergeSort(triples);
+            for (List<Integer> triple : triples) {
+                List<ComputerNode> c1List, c2List;
+                ComputerNode c2Node = new ComputerNode(triple.get(1), triple.get(2));
+                ComputerNode c1Node = new ComputerNode(triple.get(0), triple.get(2));
+                boolean newC1Node = true;
+                boolean newC2Node = true;
+                if (map.get(triple.get(0)) == null) {
+                    c1List = new ArrayList<ComputerNode>();
+                } else {
+                    c1List = map.get(triple.get(0));
+                    if (c1List.get(c1List.size() - 1).getTimestamp() == triple.get(2)) {
+                        c1Node = c1List.get(c1List.size() - 1);
+                        newC1Node = false;
+                    } else {
+                        c1List.get(c1List.size() - 1).addOutNeighbor(c1Node);
+                    }
+                }
+                if (map.get(triple.get(1)) == null) {
+                    c2List = new ArrayList<ComputerNode>();
+                } else {
+                    c2List = map.get(triple.get(1));
+                    if (c2List.get(c2List.size() - 1).getTimestamp() == triple.get(2)) {
+                        c2Node = c2List.get(c2List.size() - 1);
+                        newC2Node = false;
+                    } else {
+                        c2List.get(c2List.size() - 1).addOutNeighbor(c2Node);
+                    }
+                }
+                c1Node.addOutNeighbor(c2Node);
+                c2Node.addOutNeighbor(c1Node);
+                if (newC1Node) {
+                    c1List.add(c1Node);
+                }
+                if (newC2Node) {
+                    c2List.add(c2Node);
+                }
+                map.put(triple.get(0), c1List);
+                map.put(triple.get(1), c2List);
+            }
+        }
+        activeGraph = true;
 	}
 	
 	public HashMap<Integer, List<ComputerNode>> getComputerMapping(){
@@ -111,20 +107,21 @@ public class CommunicationsMonitor {
 		ComputerNode endOfList = null;
 		if(activeGraph){
 			ArrayList<ComputerNode> list = new ArrayList<ComputerNode>();
-			for(ComputerNode cn : mapping.get(c1)){
+			ComputerNode lastNode = null;
+			for(ComputerNode cn : map.get(c1)){
 				if(cn.getTimestamp() >= x && !activeList){
-					DFS(n, c2, y, list, endOfList);
+					lastNode = DFS(n, c2, y, list, endOfList);
 					break;
 				}
 			}
-			if(!list.isEmpty()){
-				endOfList = list.get(0);
-				while(endOfList.getPred() != null){
-					endOfList = endOfList.getPred();
-					list.add(endOfList);
+			if(lastNode != null){
+				list.add(lastNode);
+				while(lastNode.getPred() != null){
+					lastNode = lastNode.getPred();
+					list.add(lastNode);
 				}
+				Collections.reverse(list);
 			}
-			Collections.reverse(list);
 			return list;
 		}
 		else{
@@ -134,42 +131,98 @@ public class CommunicationsMonitor {
 	}
 	
 	
-	public void DFS(ComputerNode n, int c2, int time, ArrayList<ComputerNode> list, ComputerNode endOfList){
-		for(ComputerNode neighbor : n.getOutNeightbors()){
-			neighbor.setColor(0);
-			neighbor.setPred(null);
-		}
-		DFSVisit(n, c2, time, list, endOfList);
+	public ComputerNode DFS(ComputerNode n, int c2, int time){
+		n.setColor(0);
+		n.setPred(null);
+		initDFS(n);
+		return DFSVisit(n, c2, time);
 	}
 	
-	public void DFSVisit(ComputerNode n, int c2, int time, ArrayList<ComputerNode> list, ComputerNode endOfList){
+	public ComputerNode DFSVisit(ComputerNode n, int c2, int time){
 		n.setColor(1);
 		for(ComputerNode neighbor : n.getOutNeighbors()){
-			if(neighbor.getID() == c2 && neighbor.getTimestamp() <= time && !listMade){
+			if(neighbor.getID() == c2 && neighbor.getTimestamp() <= time){
 				neighbor.setPred(n);
-				list.add(neighbor);
-				activeList = true;
 				return;
 			}
 			else if(neighbor.getColor() == 0){
 				neighbor.setPred(n);
-				DFSVisit(neighbor, c2, time, list, endOfList);
+				ComputerNode returnedNode = DFSVisit(neighbor, c2, time);
+				if(returnedNode != null){
+					return returnedNode;
+				}
 			}
 		}
 		n.setColor(2);
+		return null;
 	}
+	
+	private void initDFS(ComputerNode n){
+		for(ComputerNode neighbor : n.getOutNeighbors()){
+			if(neighbor.getColor() != 0){
+				neighbor.setColor(0);
+				neighbor.setPred(null);
+				if(neighbor.getOutNeighbors() != null){
+					initDFS(neighbor);
+				}
+			}
+		}
+	}
+	
 	private List<List<Integer>> MergeSort(List<List<Integer>> list){
-		int n = list.size();
-		if(n == 1)
+		int listsize = list.size();
+		if(listsize == 1)
 			return list;
-		List<List<Integer>> first = list.subList(0, n/2);
-		List<List<Integer>> second = lest.subList(n/2, n);
+		List<List<Integer>> first = list.subList(0, listsize/2);
+		List<List<Integer>> second = list.subList(listsize/2, listsize);
 		return Merge(MergeSort(first), MergeSort(second));
 	}
 	
 	private List<List<Integer>> Merge(List<List<Integer>> A, List<List<Integer>> B){
-		List<List<Integer>> placeholder = new ArrayList<List<Integer>>();
-		return placeholder;
+		int asize = A.size();
+		int bsize = B.size();
+		int i = 0;
+		int j = 0;
+		List<List<Integer>> C = new ArrayList<List<Integer>>();
+		while(i < asize && j < bsize){
+			if(A.get(i).get(2) == B.get(j).get(2)){
+				if(A.get(i).get(0) == B.get(i).get(0) && A.get(i).get(1) == B.get(i).get(1)){
+					C.add(A.get(i));
+					i++;
+					j++;
+				}
+				else if(A.get(i).get(0) == B.get(i).get(1) && A.get(i).get(1) == B.get(i).get(0)){
+					C.add(A.get(i));
+					i++;
+					j++;
+				}
+				else{
+					C.add(A.get(i));
+					i++;
+					C.add(B.get(j));
+					j++;
+				}
+			}
+			else if(A.get(i).get(2) > B.get(j).get(2)){
+				C.add(B.get(j));
+				j++;
+			}
+			else if(A.get(i).get(2) < B.get(j).get(2)){
+				C.add(A.get(i));
+				i++;
+			}
+		}
+		if(i >= asize){
+			for(; j < bsize; j++){
+				C.add(B.get(j));
+			}
+		}
+		else{
+			for(; i < asize; i++){
+				C.add(A.get(i));
+			}
+		}
+		return C;
 	}
 	
 	

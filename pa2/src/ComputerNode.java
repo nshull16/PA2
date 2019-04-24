@@ -1,5 +1,10 @@
 import java.util.List;
 
+/**
+ * 
+ * @author Nathan Shull, Tyler Krueger
+ *
+ */
 public class ComputerNode {
 	
 	private int id;
@@ -26,7 +31,7 @@ public class ComputerNode {
 	}
 	
 	public void addOutNeighbor(ComputerNode outNeighbor){
-		neighbors.add(outNeighbor);
+		outNeighbors.add(outNeighbor);
 	}
 	
 	public int getColor(){
